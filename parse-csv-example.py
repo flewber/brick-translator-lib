@@ -19,3 +19,9 @@ for row in rows[:5]:
     for col in row:
         print("%10s" % col, end=" ")
     print('\n')
+
+
+# write to .csv file
+# with open('output.csv', 'w', newline='') as file:
+#     writer = csv.writer(file)
+#     writer.writerows(rows)
