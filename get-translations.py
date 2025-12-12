@@ -101,7 +101,9 @@ for row in part_rows[next_part_index:]:
         # get bulk part info (including other website mappings)
         response = rebrick.lego.get_parts(part_ids=query)
         response_json = json.loads(response.read())
-        print("API response part count: %d" % response_json['count'])
+        response_count = response_json['count']
+        if(response_count<BATCH):
+            print("Warning: API response part count was: %d. Expected: %d" % (response_count, BATCH))
 
         # parse out the website mappings specifically
         for response in response_json['results']:
