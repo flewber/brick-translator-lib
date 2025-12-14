@@ -5,13 +5,28 @@ import json
 import time
 import csv
 
-REBRICKABLE_SLEEP_DURATION = 1.1
+REBRICKABLE_SLEEP_DURATION = 10.1
+
+# Part number prefix definitions
+REBRICKABLE_PFX = "RB_"
+BRICKLINK_PFX = "BL_"
+BRICKOWL_PFX = "BO_"
+BRICKSET_PFX = "BS_"
+LEGO_PFX = "LG_"
+
+REBRICKABLE_SUPPORTED_TRANSLATIONS = [
+    ("BrickLink",   BRICKLINK_PFX),
+    ("BrickOwl",    BRICKOWL_PFX),
+    ("BrickSet",    BRICKSET_PFX),
+    ("LEGO",        LEGO_PFX),
+]
+
 
 part_filename = "parts.csv"  # File name
 translation_filename = "part_translations.csv"  # File name
 fields = []  # Column names
 part_rows = []    # Data rows
-translation_rows = ['rebrickable_part_num, non_rebrickable_part_num(s)']
+translation_rows = ["Prefixed Part Numbers"]
 total_part_count = 0
 
 # import parts list from downloadable parts.csv
@@ -107,7 +122,27 @@ for row in part_rows[next_part_index:]:
 
         # parse out the website mappings specifically
         for response in response_json['results']:
-            new_row = [response['part_num'], response['external_ids']]
+            # print(response['part_num'])# + str(response['external_ids']))
+            new_row = []
+            # Rebrickable Part Numbers
+            rebrickable = REBRICKABLE_PFX + response['part_num']
+            # print("Rebrickable = %s" % rebrickable)
+            new_row.append(rebrickable)
+
+            # All other part numbers
+            external_ids = response['external_ids']
+            # print(external_ids)
+            for translation in REBRICKABLE_SUPPORTED_TRANSLATIONS:
+                try:
+                    group = external_ids[translation[0]]
+                    for part in group:
+                        # print(translation[1] + part)
+                        new_row.append(translation[1] + part)
+                except:
+                    # print("no %s Parts" % translation[0])
+                    None
+                
+            # print(new_row)
             translation_rows.append(new_row)
 
         # write mappings to file often in case program gets interrupted
