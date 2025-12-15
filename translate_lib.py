@@ -24,7 +24,20 @@ try:
 except:
     print("%s not found. Need to create using get-translations.py" % translation_filename)
 
-def tranlate_from_to(key,input_site,output_site):
+
+def tranlate_from_to(input_part_id,input_site,output_site):
+    """
+    Translate a Part ID from one site's naming scheme into the another site's naming scheme
+
+    Parameters:
+    input_part_id (str): This is the known part ID.
+    input_site (str): This is the site of the naming scheme used in the input_part_id parameter
+    output_site (str): This is the site of the naming scheme the user is requesting to be returned
+
+    Returns:
+    False: If no associated part IDs are found in the output_site's naming scheme or there is an error
+    List of Part IDs: one or many part IDs in the output_site's naming scheme associated with the input_part_id
+    """
     input_translation = False
     output_translation = False
     for translation in REBRICKABLE_SUPPORTED_TRANSLATIONS:
@@ -35,9 +48,9 @@ def tranlate_from_to(key,input_site,output_site):
     if(not (input_translation and output_translation)):
         print("invalid site name")
         return False
-    key_with_prefix = input_translation[1] + key
+    part_id_with_prefix = input_translation[1] + input_part_id
     try:
-        other_part_nums = translation_dict[key_with_prefix]
+        other_part_nums = translation_dict[part_id_with_prefix]
         ret_list = []
         for part_num in other_part_nums:
             if(part_num[:len(output_translation[1])] == output_translation[1]):
