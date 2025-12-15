@@ -11,8 +11,8 @@
 - paste your key into the sample `keys_example.py` file
 - rename the sample file to `keys.py`
 
-## Generating the Part Translations Table
+## Generating the Part Translations Dictionary
 run `python3 get-translations.py`
 
 ## Using the Part Translations
-TODO
+see `test-dictionary.py` for an example of how to use the dictionary to look up part numbers
