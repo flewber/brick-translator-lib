@@ -1,7 +1,22 @@
 #!/usr/bin/env python3
-import json
+"""Old interface, kept so existing scripts keep running. Deprecated.
 
-# Part number prefix definitions
+New code: `from brick_translator import Translator` (see README.md).
+
+Differences from the original module:
+- A missing or damaged data file raises TranslationDataError on first
+  use. It is no longer reported as "no translation found".
+- An unknown site name raises UnknownSchemeError (a ValueError).
+- Translating a part into its own scheme works.
+- Brickset IDs are found (the original looked them up under a wrong
+  name and never stored any).
+An unknown part still returns False, as before.
+"""
+import warnings
+
+from brick_translator import default_translator
+from brick_translator.translator import LEGACY_PREFIXES, REBRICKABLE
+
 REBRICKABLE_PFX = "RB_"
 BRICKLINK_PFX = "BL_"
 BRICKOWL_PFX = "BO_"
@@ -10,86 +25,61 @@ LEGO_PFX = "LG_"
 
 REBRICKABLE_SUPPORTED_TRANSLATIONS = [
     ("Rebrickable", REBRICKABLE_PFX),
-    ("BrickLink",   BRICKLINK_PFX),
-    ("BrickOwl",    BRICKOWL_PFX),
-    ("BrickSet",    BRICKSET_PFX),
-    ("LEGO",        LEGO_PFX),
+    ("BrickLink", BRICKLINK_PFX),
+    ("BrickOwl", BRICKOWL_PFX),
+    ("BrickSet", BRICKSET_PFX),
+    ("LEGO", LEGO_PFX),
 ]
 
-translation_filename = "part_translations.json"  # File name
 
-try:
-    with open(translation_filename, 'r') as f:
-        translation_dict = json.load(f)
-except:
-    print("%s not found. Need to create using get-translations.py" % translation_filename)
+def _deprecated(name):
+    warnings.warn(f"translate_lib.{name} is deprecated; use brick_translator.Translator",
+                  DeprecationWarning, stacklevel=3)
 
 
-def tranlate_from_to(input_part_id,input_site,output_site):
-    """
-    Translate a Part ID from one site's naming scheme into the another site's naming scheme
+def tranlate_from_to(input_part_id, input_site, output_site):
+    """List of IDs in output_site's scheme, or False if there are none."""
+    _deprecated("tranlate_from_to")
+    return default_translator().translate_part(input_part_id, input_site, output_site) or False
 
-    Parameters:
-    input_part_id (str): This is the known part ID.
-    input_site (str): This is the site of the naming scheme used in the input_part_id parameter
-    output_site (str): This is the site of the naming scheme the user is requesting to be returned
 
-    Returns:
-    False: If no associated part IDs are found in the output_site's naming scheme or there is an error
-    List of Part IDs: one or many part IDs in the output_site's naming scheme associated with the input_part_id
-    """
-    input_translation = False
-    output_translation = False
-    for translation in REBRICKABLE_SUPPORTED_TRANSLATIONS:
-        if(translation[0] == input_site):
-            input_translation = translation
-        elif(translation[0] == output_site):
-            output_translation = translation
-    if(not (input_translation and output_translation)):
-        print("invalid site name")
+def _all_other_ids(key, scheme):
+    """Every other known ID of the part, prefixed, or False if unknown."""
+    translator = default_translator()
+    rb_ids = translator.translate_part(key, scheme, REBRICKABLE)
+    if not rb_ids:
         return False
-    part_id_with_prefix = input_translation[1] + input_part_id
-    try:
-        other_part_nums = translation_dict[part_id_with_prefix]
-        ret_list = []
-        for part_num in other_part_nums:
-            if(part_num[:len(output_translation[1])] == output_translation[1]):
-                ret_list.append(part_num[len(output_translation[1]):])
-        return ret_list
-    except:
-        return False
-    
+    own = (scheme, str(key))
+    out = []
+    for rb_id in rb_ids:
+        ids = {REBRICKABLE: [rb_id], **translator.part_ids(rb_id)}
+        for prefix, other_scheme in LEGACY_PREFIXES.items():
+            for other in ids.get(other_scheme, ()):
+                if (other_scheme, other) != own and prefix + other not in out:
+                    out.append(prefix + other)
+    return out
+
+
 def tranlate_from_rebrickable(key):
-    with_prefix = REBRICKABLE_PFX + key
-    try:
-        return translation_dict[with_prefix]
-    except:
-        return False
+    _deprecated("tranlate_from_rebrickable")
+    return _all_other_ids(key, "Rebrickable")
+
 
 def tranlate_from_bricklink(key):
-    with_prefix = BRICKLINK_PFX + key
-    try:
-        return translation_dict[with_prefix]
-    except:
-        return False
+    _deprecated("tranlate_from_bricklink")
+    return _all_other_ids(key, "BrickLink")
+
 
 def tranlate_from_brickowl(key):
-    with_prefix = BRICKOWL_PFX + key
-    try:
-        return translation_dict[with_prefix]
-    except:
-        return False
+    _deprecated("tranlate_from_brickowl")
+    return _all_other_ids(key, "BrickOwl")
+
 
 def tranlate_from_brickset(key):
-    with_prefix = BRICKSET_PFX + key
-    try:
-        return translation_dict[with_prefix]
-    except:
-        return False
+    _deprecated("tranlate_from_brickset")
+    return _all_other_ids(key, "Brickset")
+
 
 def tranlate_from_lego(key):
-    with_prefix = LEGO_PFX + key
-    try:
-        return translation_dict[with_prefix]
-    except:
-        return False
+    _deprecated("tranlate_from_lego")
+    return _all_other_ids(key, "LEGO")
