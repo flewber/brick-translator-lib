@@ -2,3 +2,7 @@ keys.py
 *.csv
 api-helpers.py
 *.json
+*.json.tmp
+__pycache__/
+.venv/
+*.pyc
