@@ -9,7 +9,7 @@ record the evidence.
 
 Numbers come from the full data file built on 2026-11-16 (65,034 parts,
 275 colors, `complete: true`, one part not returned by the API) and from
-five recorded Brickognize replies (four with parts, three with colors).
+four recorded Brickognize replies (all with parts, three with colors).
 The full file is Rebrickable data and is not in this repo; the tests use
 `tests/data/bricklink_ids.json`, a 37-entry extract.
 
@@ -21,7 +21,7 @@ Colors: all 19 map to exactly one Rebrickable color, and the names match
 (for example BrickLink 5 Red to 4, 11 Black to 0, 86 Light Bluish Gray to
 71, 85 Dark Bluish Gray to 72, 1 White to 15, 12 Trans-Clear to 47).
 
-Parts: 16 map to one Rebrickable part, 2 to two parts, 5 to none.
+Parts: 14 map to one Rebrickable part, 2 to two parts, 5 to none.
 - Two parts: `3001` gives `3001` and `3556`; `3010` gives `3010` and `3010a`.
 - One part: `3001c01` gives `30160`, `bhol04` gives `3001c`, `3001old`
   gives `3001a`, `3023pb02` gives `3023pr0001`, `3023pb12` gives
@@ -29,8 +29,8 @@ Parts: 16 map to one Rebrickable part, 2 to two parts, 5 to none.
   and `2456`, `3023`, `3623`, `3024`, `7896`, `29541`, `48201` give
   themselves.
 - None: `3001special`, `3001oldpb07`, `3023old2`, `27glass`, `29glass`
-  (no entry with that BrickLink id; `knows_part` is False). The last two
-  are glass variants of parts 27 and 29, which do exist.
+  (no entry with that BrickLink id; `knows_part` is False). Parts 27 and 29 themselves exist
+  (guess: the `glass` ids are variants Rebrickable does not list).
 
 So not every part id gives exactly one result. Of the 21 part ids, 2 are
 one-to-many and 5 are unmapped.
@@ -80,8 +80,9 @@ Shown from the data:
 - A BrickLink id can equal a *different* Rebrickable id: 143 cases, such
   as BrickLink `970c55`, which is Rebrickable `970c24`. Do not assume a
   BrickLink id is also a Rebrickable id; always translate.
-- The ids `special` and `glass` do not occur in the data at all (guess:
-  Brickognize lists catalog entries that Rebrickable does not carry).
+- Suffixes such as `special` occur nowhere in the data, and `glass` once
+  (`7026glass`). Guess: Brickognize lists catalog entries that Rebrickable
+  does not carry.
 
 ## 4. What a caller should do
 
