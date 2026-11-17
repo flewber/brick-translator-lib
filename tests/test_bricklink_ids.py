@@ -3,6 +3,11 @@
 `data/bricklink_ids.json` holds only the entries for the ids seen in
 recorded Brickognize replies (parts and colors). The full data file is
 not needed.
+
+The extract is Rebrickable data and is not committed (see the README on
+Rebrickable's terms), so these tests are skipped where it is absent, as
+on CI. To run them, place the extract (or the full data file) at that
+path.
 """
 
 from pathlib import Path
@@ -12,6 +17,10 @@ import pytest
 from brick_translator import Translator
 
 DATA = Path(__file__).parent / "data" / "bricklink_ids.json"
+
+pytestmark = pytest.mark.skipif(
+    not DATA.exists(), reason=f"data extract not present: {DATA}"
+)
 
 # BrickLink part id -> Rebrickable ids, as the full data file gives them
 PART_RESULTS = {
